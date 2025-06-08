@@ -1,0 +1,3 @@
+(Ile wynosi|Podaj|Pobierz|Sprawdź|Jaki jest|Jaka jest) (|mi) (temperatura|barwa|kolor|wartość|stan|status|odczyt) (|mojego|mojej|moich) {entity}
+czy (|poziom|stan) (|urządzenia) {entity} jest (włączon|wyłączon|podłączon|wysok|nisk|gorąc|zimn|otwart|zamknięt|ciemn|jasn|w ruch|zajęt|zabezpieczon|odbezpieczon|ładowani|dostępn)(a|e|i|y|o|u)
+czy (|urządzenie) (wykrywa|pokazuje|raportuje) (wilgotność|wilgoś|energię|problem|wibracje|gaz|hałas)
