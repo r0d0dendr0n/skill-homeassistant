@@ -27,6 +27,11 @@ class HomeAssistantSkill(OVOSSkill):
 
     def __init__(self, *args, bus=None, skill_id="", **kwargs):
         super().__init__(*args, bus=bus, skill_id=skill_id, **kwargs)
+        try:
+            with open("locale/{}/colors.json".format(self.lang), encoding="utf-8") as f: # TODO: Use ovos-color-parser when it's ready
+                self.color_translate = json.load(f)
+        except:
+            self.color_translate = {}
 
     @property
     def silent_entities(self):
@@ -83,6 +88,14 @@ class HomeAssistantSkill(OVOSSkill):
         if not self._intents_enabled and disable_intents is False:
             self.log.info("Enabling Home Assistant intents by user request. To disable, set disable_intents to True.")
             self.enable_ha_intents()
+
+    def _translate_color(self, native_color_name: str):
+        if not self.color_translate:
+            return native_color_name
+        cssColor = self.color_translate.get(native_color_name)
+        if cssColor:
+            return cssColor
+        return native_color_name
 
     def enable_ha_intents(self):
         for intent in self.connected_intents:
@@ -278,7 +291,7 @@ class HomeAssistantSkill(OVOSSkill):
     def handle_set_color_intent(self, message: Message):
         self.log.info(message.data)
         device = self._get_device_from_message(message)
-        color = message.data.get("color")
+        color = _translate_color(message.data.get("color"))
 
         if not color:
             self.speak_dialog("no.parsed.color")
