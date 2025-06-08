@@ -78,19 +78,20 @@ class HomeAssistantClient:
         return self.config.get("toggle_automations", False)
 
     # SETUP INSTANCE SUPPORT
-    def validate_instance_connection(self, host, api_key, assist_only):
+    def validate_instance_connection(self, host, api_key, assist_only, verify_ssl):
         """Validate the connection to the Home Assistant instance
 
         Args:
             host (str): The Home Assistant instance URL
             api_key (str): The Home Assistant API key
             assist_only (bool): Whether to only pull entities exposed to Assist. Default True
+            verify_ssl (bool): Whether to verify ssl certificates (True) or ignore ssl errors (False). Default True
 
         Returns:
             bool: True if the connection is valid, False otherwise
         """
         try:
-            validator = HomeAssistantRESTConnector(host, api_key, assist_only)
+            validator = HomeAssistantRESTConnector(host, api_key, assist_only, verify_ssl)
 
             validator.get_all_devices()
 
@@ -109,11 +110,13 @@ class HomeAssistantClient:
         host = message.data.get("url", "")
         key = message.data.get("api_key", "")
         assist_only = message.data.get("assist_only", True)
+        verify_ssl = message.data.get("verify_ssl", True)
 
         if host and key:
             if self.validate_instance_connection(host, key, assist_only):
                 self.config["host"] = host
                 self.config["api_key"] = key
+                self.config["verify_ssl"] = verify_ssl
                 self.instance_available = True
                 self.init_configuration()
 
@@ -124,12 +127,14 @@ class HomeAssistantClient:
         configuration_host = self.config.get("host", "")
         configuration_api_key = self.config.get("api_key", "")
         configuration_assist_only = self.config.get("assist_only", True)
+        configuration_verify_ssl = self.config.get("verify_ssl", True)
         if configuration_host != "" and configuration_api_key != "":
             self.instance_available = True
             self.connector = HomeAssistantRESTConnector(
                 host=configuration_host,
                 api_key=configuration_api_key,
                 assist_only=configuration_assist_only,
+                verify_ssl=configuration_verify_ssl,
                 timeout=self.config.get("timeout", 3),
             )
             self.devices = self.connector.get_all_devices()
