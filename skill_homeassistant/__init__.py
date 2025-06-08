@@ -291,7 +291,7 @@ class HomeAssistantSkill(OVOSSkill):
     def handle_set_color_intent(self, message: Message):
         self.log.info(message.data)
         device = self._get_device_from_message(message)
-        color = _translate_color(message.data.get("color"))
+        color = self._translate_color(message.data.get("color"))
 
         if not color:
             self.speak_dialog("no.parsed.color")
