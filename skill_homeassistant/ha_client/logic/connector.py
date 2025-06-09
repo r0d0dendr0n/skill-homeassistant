@@ -16,7 +16,7 @@ from ovos_utils.log import LOG
 class HomeAssistantConnector(ABC):
     """Home Assistant Connector"""
 
-    def __init__(self, host, api_key, assist_only=True, timeout=3):
+    def __init__(self, host, api_key, assist_only=True, verify_ssl=True, timeout=3):
         """Constructor
 
         Args:
@@ -30,6 +30,7 @@ class HomeAssistantConnector(ABC):
         self.assist_only = assist_only
         self.event_listeners = {}
         self.timeout = timeout
+        self.verify_ssl = verify_ssl
 
     @abstractmethod
     def get_all_devices(self) -> List[dict]:
@@ -159,7 +160,7 @@ class HomeAssistantRESTConnector(HomeAssistantConnector):
     def get_all_devices(self):
         """Get all devices from home assistant."""
         url = self.host + "/api/states"
-        response = requests.get(url, headers=self.headers, timeout=self.timeout)
+        response = requests.get(url, headers=self.headers, timeout=self.timeout, verify=self.verify_ssl)
         try:
             response.raise_for_status()
             return response.json()
@@ -170,7 +171,7 @@ class HomeAssistantRESTConnector(HomeAssistantConnector):
     def get_device_state(self, entity_id):
         """Get the state of a device."""
         url = self.host + "/api/states/" + entity_id
-        response = requests.get(url, headers=self.headers, timeout=self.timeout)
+        response = requests.get(url, headers=self.headers, timeout=self.timeout, verify=self.verify_ssl)
         try:
             response.raise_for_status()
             return response.json()
@@ -188,7 +189,7 @@ class HomeAssistantRESTConnector(HomeAssistantConnector):
         """
         url = self.host + "/api/states/" + entity_id
         payload = {"state": state, "attributes": attributes}
-        response = requests.post(url, data=json.dumps(payload), headers=self.headers, timeout=self.timeout)
+        response = requests.post(url, data=json.dumps(payload), headers=self.headers, timeout=self.timeout, verify=self.verify_ssl)
         try:
             response.raise_for_status()
             return response.json()
@@ -259,7 +260,7 @@ class HomeAssistantRESTConnector(HomeAssistantConnector):
         """
         url = self.host + "/api/services/" + device_type + "/turn_on"
         payload = {"entity_id": device_id}
-        response = requests.post(url, data=json.dumps(payload), headers=self.headers, timeout=self.timeout)
+        response = requests.post(url, data=json.dumps(payload), headers=self.headers, timeout=self.timeout, verify=self.verify_ssl)
         try:
             response.raise_for_status()
             return response.json()
@@ -276,7 +277,7 @@ class HomeAssistantRESTConnector(HomeAssistantConnector):
         """
         url = self.host + "/api/services/" + device_type + "/turn_off"
         payload = {"entity_id": device_id}
-        response = requests.post(url, data=json.dumps(payload), headers=self.headers, timeout=self.timeout)
+        response = requests.post(url, data=json.dumps(payload), headers=self.headers, timeout=self.timeout, verify=self.verify_ssl)
         try:
             response.raise_for_status()
             return response.json()
@@ -299,7 +300,7 @@ class HomeAssistantRESTConnector(HomeAssistantConnector):
             for key, value in arguments.items():
                 payload[key] = value
 
-        response = requests.post(url, data=json.dumps(payload), headers=self.headers, timeout=self.timeout)
+        response = requests.post(url, data=json.dumps(payload), headers=self.headers, timeout=self.timeout, verify=self.verify_ssl)
 
         try:
             response.raise_for_status()
@@ -321,7 +322,7 @@ class HomeAssistantRESTConnector(HomeAssistantConnector):
             "text": command,
             "language": arguments.get("language", "en"),
         }
-        response = requests.post(url, data=json.dumps(payload), headers=self.headers, timeout=self.timeout)
+        response = requests.post(url, data=json.dumps(payload), headers=self.headers, timeout=self.timeout, verify=self.verify_ssl)
         try:
             response.raise_for_status()
             return response.json()
