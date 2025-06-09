@@ -1,4 +1,6 @@
 # pylint: disable=missing-function-docstring,missing-class-docstring,missing-module-docstring,logging-fstring-interpolation
+import json
+
 from ovos_bus_client import Message
 from ovos_workshop.decorators import intent_handler
 from ovos_workshop.skills import OVOSSkill
@@ -27,13 +29,15 @@ class HomeAssistantSkill(OVOSSkill):
 
     def __init__(self, *args, bus=None, skill_id="", **kwargs):
         super().__init__(*args, bus=bus, skill_id=skill_id, **kwargs)
+        
+        colors_json_path = "{}/locale/{}/colors.json".format(self.root_dir, self.lang)
         try:
-            with open("{}/locale/{}/colors.json".format(self.root_dir, self.lang), encoding="utf-8") as f: # TODO: Use ovos-color-parser when it's ready
-                self.color_translate = json.load(f)
+            with open(colors_json_path, encoding="utf-8") as f: # TODO: Use ovos-color-parser when it's ready
+                self.color_translate = json.load(f) # only reason for import json
                 self.log.info("Loaded color translations.")
         except:
             self.color_translate = {}
-            self.log.info("Unable to load color translations from {}/locale/{}/colors.json.".format(self.root_dir, self.lang))
+            self.log.info("Unable to load color translations from {}.".format(colors_json_path))
 
     @property
     def silent_entities(self):
@@ -98,6 +102,12 @@ class HomeAssistantSkill(OVOSSkill):
         if cssColor:
             return cssColor
         return native_color_name
+
+    dev _translate_color_reverse(self, cssColor: str)
+        if not self.color_translate:
+            return native_color_name
+        native_or_css_color = next((k for k, v in self.color_translate.items() if v == cssColor), cssColor)
+        return native_or_css_color
 
     def enable_ha_intents(self):
         for intent in self.connected_intents:
@@ -302,7 +312,7 @@ class HomeAssistantSkill(OVOSSkill):
         if device:
             response = self.ha_client.handle_set_light_color(Message("", {"device": device, "color": color}))
             if self._handle_device_response(
-                response, device, "lights.current.color", {"color": response.get("color")} if response else None
+                response, device, "lights.current.color", {"color": self._translate_color_reverse(response.get("color"))} if response else None
             ):
                 return
             self.log.info(f"Trying to set color of {device}")
