@@ -28,10 +28,12 @@ class HomeAssistantSkill(OVOSSkill):
     def __init__(self, *args, bus=None, skill_id="", **kwargs):
         super().__init__(*args, bus=bus, skill_id=skill_id, **kwargs)
         try:
-            with open("locale/{}/colors.json".format(self.lang), encoding="utf-8") as f: # TODO: Use ovos-color-parser when it's ready
+            with open("{}/locale/{}/colors.json".format(self.root_dir, self.lang), encoding="utf-8") as f: # TODO: Use ovos-color-parser when it's ready
                 self.color_translate = json.load(f)
+                self.log.info("Loaded color translations.")
         except:
             self.color_translate = {}
+            self.log.info("Unable to load color translations from {}/locale/{}/colors.json.".format(self.root_dir, self.lang))
 
     @property
     def silent_entities(self):
