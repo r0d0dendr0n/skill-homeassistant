@@ -103,7 +103,7 @@ class HomeAssistantSkill(OVOSSkill):
             return cssColor
         return native_color_name
 
-    def _translate_color_reverse(self, cssColor: str)
+    def _translate_color_reverse(self, cssColor: str):
         if not self.color_translate:
             return native_color_name
         native_or_css_color = next((k for k, v in self.color_translate.items() if v == cssColor), cssColor)
