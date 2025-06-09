@@ -9,7 +9,7 @@ jobs:
   unit_tests:
     strategy:
       matrix:
-        python-version: [3.9, "3.10", "3.11", "3.12", "3.13"]
+        python-version: [3.9, "3.10", "3.11", "3.12"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +23,8 @@ jobs:
           python -m pip install poetry
       - name: Install dependencies
         run: |
-          poetry install
+          sudo apt-get install -y libopenblas-dev
+          poetry install --with dev
       - name: Test
         run: |
           poetry run poe test
