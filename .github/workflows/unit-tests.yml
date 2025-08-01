@@ -7,6 +7,9 @@ on:
 
 jobs:
   unit_tests:
+    permissions:
+      contents: write
+      pull-requests: write
     strategy:
       matrix:
         python-version: [3.9, "3.10", "3.11", "3.12", "3.13"]
@@ -23,13 +26,20 @@ jobs:
           python -m pip install poetry
       - name: Install dependencies
         run: |
-          poetry install
+          sudo apt-get install -y libopenblas-dev
+          poetry install --with dev
       - name: Test
         run: |
           poetry run poe test
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
+      - name: Publish test results
+        uses: dorny/test-reporter@v2
+        if: always()
         with:
-          name: pytest-results-${{ matrix.python-version }}
+          name: pytest-results
           path: tests/unit-test-results.xml
-        if: ${{ always() }}
+          reporter: java-junit
+
+      - name: Coverage comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
